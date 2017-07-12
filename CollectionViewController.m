@@ -12,7 +12,13 @@
 
 @interface CollectionViewController ()
 
+
+@property (nonatomic) Photograph *photograph;
 @property (nonatomic) NSArray <Photograph*> *photoArray;
+
+@property (nonatomic) NSDictionary  <NSString*, NSArray*> *subjectDictionary;
+
+@property (nonatomic) NSArray <NSString*> *subjectArray;
 
 @end
 
@@ -22,6 +28,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.title = @"InstaKilo";
+    
     [self createImages];
 }
 
@@ -30,25 +38,41 @@
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
 
-    return 1;
+    return self.subjectDictionary.count;
 }
 
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
 
-    return self.photoArray.count;
+    NSString *vals = self.subjectDictionary.allKeys[section];
+    return self.subjectDictionary[vals].count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     PhotoCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
-    cell.photograph = self.photoArray[indexPath.row];
+    cell.photograph = self.photoArray[indexPath.section];
     
     [cell updateDisplay];
+    
     return cell;
 }
 
+
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        
+        UICollectionReusableView *header = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"headerID" forIndexPath:indexPath];
+        
+        UILabel *headerLabel = [header viewWithTag:1];
+        headerLabel.text = [NSString stringWithFormat:@"Subject: %@", self.subjectArray[indexPath.section]];
+        
+        return header;
+    }
+    return nil;
+}
 
 -(void)createImages {
     
@@ -65,6 +89,11 @@
     
     self.photoArray = @[ photo1, photo2, photo3, photo4, photo5, photo6, photo7, photo8, photo9, photo10];
     
+    self.subjectDictionary = @{@"Cartoon": @[photo1, photo2, photo6, photo8, photo10],
+                               @"People": @[photo3, photo4, photo7],
+                               @"Pattern":@[ photo5, photo9]};
+    
+    self.subjectArray = @[self.subjectDictionary];
 }
 
 @end
